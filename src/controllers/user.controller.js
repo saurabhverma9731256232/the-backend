@@ -238,6 +238,13 @@ const updateAcountDetails = asyncHandler(async(req,res)=>{
 const UpdateUserAvatar = asyncHandler(async(req,res)=>{
     const avatarLocalPath = req.file?.path;
     if(!avatarLocalPath) throw new apiError(400, "Avatar file is required")
+        // delete old image
+    if (user.avatar) {
+        const deleteOldImage = await uploadOnCloudinary(user.avatar, true); // assuming 2nd param triggers deletion
+        if (!deleteOldImage) throw new apiError(400, "Error while deleting old image");
+    }
+
+
         const avatar  = await uploadOnCloudinary(avatarLocalPath)
         if(!avatar.url) throw new apiError(400, "Error while uploading on avatar")
             const user = await User.findByIdAndUpdate(req.user._id,
@@ -254,6 +261,7 @@ const UpdateUserAvatar = asyncHandler(async(req,res)=>{
             user,
             "User avatar updated successfully"
         ))
+       
 })
 const UpdateUserCoverImage = asyncHandler(async(req,res)=>{
     const coverImageLocalPath = req.file?.path;
